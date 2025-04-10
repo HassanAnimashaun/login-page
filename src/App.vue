@@ -2,13 +2,35 @@
 export default {
   data() {
     return {
-      showPassword: false,
       error: '',
+      showPassword: false,
+      email: '',
+      password: '',
+      rememberMe: false,
+    }
+  },
+  mounted() {
+    const storedRememberMe = localStorage.getItem('rememberMe')
+    if (storedRememberMe === 'true') {
+      this.rememberMe = true
+      this.email = localStorage.getItem('email') || ''
+      this.password = localStorage.getItem('password') || ''
     }
   },
   methods: {
     togglePassword() {
       this.showPassword = !this.showPassword
+    },
+    handleRemeberMeChange() {
+      if (this.rememberMe) {
+        localStorage.setItem('rememberMe', true)
+        localStorage.setItem('email', this.email)
+        localStorage.setItem('password', this.password)
+      } else {
+        localStorage.removeItem('rememberMe')
+        localStorage.removeItem('email')
+        localStorage.removeItem('password')
+      }
     },
   },
 }
@@ -22,7 +44,7 @@ export default {
     </div>
 
     <div class="max-w-md bg-white p-6 rounded-2xl shadow-lg">
-      <form action="">
+      <form @submit.prevent="formValidator" method="post" novalidate="true">
         <div class="relative mb-5">
           <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
             <span class="material-symbols-outlined text-gray-500"> person </span>
@@ -30,8 +52,10 @@ export default {
           <input
             type="email"
             id="email"
+            v-model="email"
             class="pl-10 pr-4 py-2 rounded-lg bg-gray-50 border border-gray-300 text-sm text-gray-900 focus:ring-blue-500 focus:border-blue-500"
             placeholder="Email"
+            required
           />
         </div>
         <div class="relative mb-5">
@@ -41,8 +65,10 @@ export default {
           <input
             :type="showPassword ? 'text' : 'password'"
             id="password"
+            v-model="password"
             class="w-full pl-10 pr-4 py-2 rounded-lg bg-gray-50 border border-gray-300 text-sm text-gray-900 focus:ring-blue-500 focus:border-blue-500"
             placeholder="Password"
+            required
           />
           <div class="absolute inset-y-6 right-2 flex items-center">
             <button @click.prevent="togglePassword" class="cursor-pointer">
@@ -55,7 +81,13 @@ export default {
         </div>
 
         <div class="flex items-center mb-5">
-          <input type="checkbox" id="remember" class="mr-2" />
+          <input
+            type="checkbox"
+            id="remember"
+            v-model="rememberMe"
+            @change="handleRemeberMeChange"
+            class="mr-2"
+          />
           <label for="remember" class="text-sm text-gray-700">Remember Me</label>
         </div>
 
