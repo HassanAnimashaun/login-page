@@ -11,7 +11,7 @@ export default {
   },
   mounted() {
     const storedRememberMe = localStorage.getItem('rememberMe')
-    if (storedRememberMe === 'true') {
+    if (storedRememberMe === true) {
       this.rememberMe = true
       this.email = localStorage.getItem('email') || ''
       this.password = localStorage.getItem('password') || ''
@@ -21,7 +21,7 @@ export default {
     togglePassword() {
       this.showPassword = !this.showPassword
     },
-    handleRemeberMeChange() {
+    handleRememberMeChange() {
       if (this.rememberMe) {
         localStorage.setItem('rememberMe', true)
         localStorage.setItem('email', this.email)
@@ -30,6 +30,34 @@ export default {
         localStorage.removeItem('rememberMe')
         localStorage.removeItem('email')
         localStorage.removeItem('password')
+      }
+    },
+    // BACKEND API CALL
+    async login() {
+      try {
+        const response = await fetch('http://localhost:5173/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: this.email,
+            password: this.password,
+          }),
+        })
+        const data = await response.json()
+
+        if (!response.ok) {
+          this.error = data.error || 'Login failed'
+          return
+        }
+
+        if (this.rememberMe) {
+          localStorage.setItem('token', data.token)
+        } else {
+          sessionStorage.setItem('token', data.token)
+        }
+        this.$router.push('/admin-dashboard')
+      } catch {
+        this.error = 'Something went wrong. Please try again.'
       }
     },
   },
@@ -44,7 +72,7 @@ export default {
     </div>
 
     <div class="max-w-md bg-white p-6 rounded-2xl shadow-lg">
-      <form @submit.prevent="formValidator" method="post" novalidate="true">
+      <form @submit.prevent="login" method="post" novalidate="true">
         <div class="relative mb-5">
           <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
             <span class="material-symbols-outlined text-gray-500"> person </span>
@@ -85,7 +113,7 @@ export default {
             type="checkbox"
             id="remember"
             v-model="rememberMe"
-            @change="handleRemeberMeChange"
+            @change="handleRememberMeChange"
             class="mr-2"
           />
           <label for="remember" class="text-sm text-gray-700">Remember Me</label>
