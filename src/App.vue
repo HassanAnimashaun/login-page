@@ -4,7 +4,7 @@ export default {
     return {
       error: '',
       showPassword: false,
-      email: '',
+      username: '',
       password: '',
       rememberMe: false,
     }
@@ -13,7 +13,7 @@ export default {
     const storedRememberMe = localStorage.getItem('rememberMe')
     if (storedRememberMe === true) {
       this.rememberMe = true
-      this.email = localStorage.getItem('email') || ''
+      this.username = localStorage.getItem('username') || ''
       this.password = localStorage.getItem('password') || ''
     }
   },
@@ -24,22 +24,22 @@ export default {
     handleRememberMeChange() {
       if (this.rememberMe) {
         localStorage.setItem('rememberMe', true)
-        localStorage.setItem('email', this.email)
+        localStorage.setItem('username', this.username)
         localStorage.setItem('password', this.password)
       } else {
         localStorage.removeItem('rememberMe')
-        localStorage.removeItem('email')
+        localStorage.removeItem('username')
         localStorage.removeItem('password')
       }
     },
     // BACKEND API CALL
     async login() {
       try {
-        const response = await fetch('http://localhost:5173/api/login', {
+        const response = await fetch('http://localhost:8000/api/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            email: this.email,
+            username: this.username,
             password: this.password,
           }),
         })
@@ -78,11 +78,11 @@ export default {
             <span class="material-symbols-outlined text-gray-500"> person </span>
           </div>
           <input
-            type="email"
-            id="email"
-            v-model="email"
+            type="text"
+            id="username"
+            v-model="username"
             class="pl-10 pr-4 py-2 rounded-lg bg-gray-50 border border-gray-300 text-sm text-gray-900 focus:ring-blue-500 focus:border-blue-500"
-            placeholder="Email"
+            placeholder="username"
             required
           />
         </div>
